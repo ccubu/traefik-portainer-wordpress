@@ -5,7 +5,6 @@ services:
     image: mysql:5.7
     volumes:
       - db_data:/var/lib/mysql
-    restart: always
     networks:
       - backend
     environment:
@@ -18,17 +17,22 @@ services:
     image: christiancb/cb-wordpress:latest
     networks:
       - backend
-    restart: always
-    ports:
-      - 9998:80
+      - proxy
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
+    deploy:
+      labels:
+        traefik.port: 80
+        traefik.frontend.rule: "Host:cb-wordpress.192.168.20.217.nip.io"
+        traefik.docker.network: 'proxy'
 volumes:
   db_data: {}
 
 networks:
   backend:
+  proxy:
+    external: true
 
